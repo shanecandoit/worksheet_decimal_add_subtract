@@ -27,11 +27,12 @@
         input:disabled { background-color: #eee; cursor: not-allowed; border-color: #ddd; }
 
         /* Annotation row for carries / borrows */
-        .annotation-row { display: grid; grid-template-columns: repeat(6, 40px); gap: 2px; margin-bottom: 8px; }
+        .annotation-row { display: grid; grid-template-columns: repeat(6, 40px); gap: 2px; margin-bottom: 8px; justify-content: center; }
         .note-input { width: 30px; height: 24px; font-size: 14px; text-align: center; border: 1px dashed #999; color: #666; border-radius: 4px; }
         .note-input.active { border-style: solid; border-color: #2196f3; }
         .note-input.correct { border-color: #4caf50 !important; background-color: #e8f5e9; }
         .note-input.incorrect { border-color: #f44336 !important; background-color: #ffebee; }
+        .borrowed { text-decoration: line-through; color: #999 !important; }
 
         button { padding: 8px 16px; cursor: pointer; background: #2196f3; color: white; border: none; border-radius: 4px; font-weight: bold; }
         button:disabled { background: #ccc; }
@@ -338,6 +339,9 @@
             fillRow('r1', n1);
             fillRow('r2', n2);
 
+            // Clear any borrowed styling from previous problem
+            document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('borrowed'));
+
             // calculate expected annotations (for optional validation)
             expectedNotes = calculateAnnotations(n1, n2, isAdd);
             document.querySelectorAll('.note-input').forEach(input => {
@@ -428,8 +432,24 @@
                 // allow only digits, up to maxlength
                 e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
                 validateNote(e.target);
+                updateBorrowVisuals(e.target);
             });
         });
+
+        function updateBorrowVisuals(noteInput) {
+            // Strike through the corresponding r1 cell when a borrow/carry is written
+            const noteId = noteInput.id; // e.g., note_1, note_2, note_3, note_4
+            const digitIndex = noteId.split('_')[1]; // 1, 2, 3, or 4
+            const r1Cell = document.getElementById(`r1_${digitIndex}`);
+            
+            if (r1Cell) {
+                if (noteInput.value !== "") {
+                    r1Cell.classList.add('borrowed');
+                } else {
+                    r1Cell.classList.remove('borrowed');
+                }
+            }
+        }
 
         function validateNote(input) {
             const id = input.id; // note_1 .. note_4
