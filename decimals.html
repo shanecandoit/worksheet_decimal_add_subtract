@@ -44,8 +44,8 @@
     <div class="problem-container">
         <div id="instructions" class="instructions">
             <div id="step1">Step 1: <input type="checkbox" id="step1-checkbox" disabled aria-hidden="true"> Use arrows to line up the decimal points.</div>
-            <div id="step2" style="opacity:0.5; margin-top:6px;">Step 2: <input type="checkbox" id="step2-checkbox" disabled aria-hidden="true"> Fill carry / borrow annotations.</div>
-            <div id="step3" style="opacity:0.5; margin-top:6px;">Step 3: <input type="checkbox" id="step3-checkbox" disabled aria-hidden="true"> Enter the answer.</div>
+            <div id="step2" style="opacity:0.5; margin-top:6px;">Step 2: <input type="checkbox" id="step2-checkbox" disabled aria-hidden="true"> Enter the answer (right to left).</div>
+            <div style="font-size:12px; margin-top:8px; color:#666;">💡 Tip: Use the dashed boxes above for carries/borrows (optional).</div>
         </div>
         
         <div class="controls">
@@ -98,9 +98,10 @@
         let solution = "";
         let shiftIndex = 2; // Start unaligned
         const offsetPixels = 42; // Width of cell + gap
+        let currentProblem = { n1: "", n2: "", isAdd: true };
 
-        // Annotation requirements for carries / borrows
-        let requiredNotes = { note_1: "", note_2: "", note_3: "", note_4: "" };
+        // Expected annotations (optional, for validation feedback only)
+        let expectedNotes = { note_1: "", note_2: "", note_3: "", note_4: "" };
 
         function calculateAnnotations(n1, n2, isAdd) {
             const d1 = n1.replace('.', '').split('').map(Number);
@@ -152,24 +153,21 @@
             let res = isAdd ? (parseFloat(n1) + parseFloat(n2)) : (parseFloat(n1) - parseFloat(n2));
             solution = res.toFixed(2).padStart(5, '0').replace('.', ''); // e.g. "45.20" -> "4520"
 
+            currentProblem = { n1, n2, isAdd };
             document.getElementById('op-display').innerText = isAdd ? '+' : '-';
             fillRow('r1', n1);
             fillRow('r2', n2);
 
-            // calculate required annotations and reset note inputs
-            requiredNotes = calculateAnnotations(n1, n2, isAdd);
+            // calculate expected annotations (for optional validation)
+            expectedNotes = calculateAnnotations(n1, n2, isAdd);
             document.querySelectorAll('.note-input').forEach(input => {
                 input.value = '';
                 input.className = 'note-input';
                 input.disabled = true; // enabled after alignment (step 1)
             });
-            // visually mark which annotation boxes are expected (active)
-            Object.keys(requiredNotes).forEach(k => {
-                const el = document.getElementById(k);
-                if (el) {
-                    if (requiredNotes[k] !== "") el.classList.add('active');
-                    else el.classList.remove('active');
-                }
+            // remove active marking - annotations are now optional
+            document.querySelectorAll('.note-input').forEach(el => {
+                el.classList.remove('active');
             });
 
             // Reset inputs
@@ -186,20 +184,6 @@
             const step2cb = document.getElementById('step2-checkbox');
             step2cb.checked = false;
             document.getElementById('step2').style.opacity = 0.5;
-            const step3cb = document.getElementById('step3-checkbox');
-            step3cb.checked = false;
-            document.getElementById('step3').style.opacity = 0.5;
-
-            // If there are no required notes (no carries/borrows), auto-complete step 2
-            const anyRequired = Object.values(requiredNotes).some(v => v !== "");
-            if (!anyRequired) {
-                // No annotations required -> enable answers immediately
-                document.getElementById('step2-checkbox').checked = true;
-                document.getElementById('step2').style.opacity = 1;
-                document.querySelectorAll('.digit-input').forEach(i => i.disabled = false);
-                document.getElementById('step3-checkbox').checked = true;
-                document.getElementById('step3').style.opacity = 1;
-            }
         }
 
         function fillRow(prefix, num) {
@@ -217,23 +201,24 @@
             wrapper.style.transform = `translateX(${shiftIndex * offsetPixels}px)`;
             
             if (shiftIndex === 0) {
-                // Mark Step 1 as complete and reveal Step 2
+                // Mark Step 1 as complete and enable Step 2
                 document.getElementById('step1-checkbox').checked = true;
                 document.getElementById('step2').style.opacity = 1;
-                // enable annotation inputs (student must fill them now)
-                document.querySelectorAll('.note-input').forEach(i => {
+                
+                // Enable both note inputs (optional) and digit inputs simultaneously
+                document.querySelectorAll('.note-input, .digit-input').forEach(i => {
                     i.disabled = false;
                     i.classList.remove('incorrect', 'correct');
                 });
-                // focus first active annotation if present
-                const firstActive = document.querySelector('.note-input.active');
-                if (firstActive) firstActive.focus();
+                
+                // Focus rightmost answer input to encourage right-to-left flow
+                const rightmost = document.getElementById('ans_4');
+                if (rightmost) rightmost.focus();
             } else {
                 // Uncheck Step 1 and dim Step 2 while aligning
                 document.getElementById('step1-checkbox').checked = false;
                 document.getElementById('step2').style.opacity = 0.5;
                 document.querySelectorAll('.note-input').forEach(i => { i.disabled = true; i.className = 'note-input'; });
-                // also lock answer inputs until annotations are correct
                 document.querySelectorAll('.digit-input').forEach(i => i.disabled = true);
             }
         }
@@ -257,69 +242,41 @@
             });
         });
 
-        // Note input validation and immediate feedback
+        // Note input validation: optional, non-blocking feedback
         document.querySelectorAll('.note-input').forEach((input) => {
             input.addEventListener('input', (e) => {
                 // allow only digits, up to maxlength
                 e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
-                const id = e.target.id; // note_1 .. note_4
-                const expected = requiredNotes[id] || "";
-
-                if (e.target.value === "") {
-                    e.target.className = 'note-input';
-                } else if (expected !== "" && e.target.value === expected) {
-                    e.target.className = 'note-input correct';
-                    // check if all required annotations are satisfied
-                    checkAnnotationsComplete();
-                } else if (expected !== "") {
-                    e.target.className = 'note-input incorrect';
-                    // lock answers while incorrect
-                    document.querySelectorAll('.digit-input').forEach(i => i.disabled = true);
-                    document.getElementById('step2-checkbox').checked = false;
-                    document.getElementById('step3-checkbox').checked = false;
-                    document.getElementById('step3').style.opacity = 0.5;
-                } else {
-                    // If no expected note here, mark incorrect
-                    e.target.className = 'note-input incorrect';
-                }
+                validateNote(e.target);
             });
         });
 
-        function checkAnnotationsComplete() {
-            const keys = Object.keys(requiredNotes);
-            for (let k of keys) {
-                if (requiredNotes[k] !== "") {
-                    const val = document.getElementById(k).value;
-                    if (val !== requiredNotes[k]) {
-                        // not yet correct
-                        document.getElementById('step2-checkbox').checked = false;
-                        document.getElementById('step3-checkbox').checked = false;
-                        document.getElementById('step3').style.opacity = 0.5;
-                        document.querySelectorAll('.digit-input').forEach(i => i.disabled = true);
-                        return false;
-                    }
-                }
+        function validateNote(input) {
+            const id = input.id; // note_1 .. note_4
+            const expected = expectedNotes[id] || "";
+            const val = input.value;
+
+            if (val === "") {
+                input.className = 'note-input';
+            } else if (expected !== "" && val === expected) {
+                input.className = 'note-input correct';
+            } else if (expected !== "") {
+                input.className = 'note-input incorrect';
+            } else {
+                // No expected value for this position
+                input.className = 'note-input incorrect';
             }
-            // all required annotations correct
-            document.getElementById('step2-checkbox').checked = true;
-            document.getElementById('step3-checkbox').checked = true;
-            document.getElementById('step3').style.opacity = 1;
-            document.querySelectorAll('.digit-input').forEach(i => i.disabled = false);
-            document.querySelectorAll('.note-input').forEach(n => n.classList.remove('active'));
-            document.getElementById('status-msg').innerText = "Annotations correct — now enter the answer.";
-            return true;
         }
 
         function checkTotalWin() {
             const inputs = document.querySelectorAll('.digit-input');
             const allCorrect = Array.from(inputs).every((input, idx) => input.value === solution[idx]);
             if (allCorrect) {
-                document.getElementById('status-msg').innerText = "Excellent! 🌟";
+                document.getElementById('status-msg').innerText = "Correct! Balance updated. 🌟";
                 document.getElementById('next-btn').classList.remove('hidden');
-                // mark annotation and answer steps complete
                 document.getElementById('step2-checkbox').checked = true;
-                document.getElementById('step3-checkbox').checked = true;
-                document.getElementById('step3').style.opacity = 1;
+                // Disable all inputs after correct answer
+                document.querySelectorAll('.digit-input, .note-input').forEach(i => i.disabled = true);
             }
         }
 
