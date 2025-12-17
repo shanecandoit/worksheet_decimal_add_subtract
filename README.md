@@ -50,9 +50,11 @@ The app generates random addition and subtraction problems with decimals. Studen
 
 The scratch boxes validate against expected carry/borrow values but **don't block** the answer inputs - they're purely optional learning aids.
 
+![A solved worksheet](subtract-w-trophy.png)
+
 ## Usage
 
-Simply open `index.html` in a web browser. No dependencies or build process required!
+**[Try it live here](https://shanecandoit.github.io/worksheet_decimal_add_subtract) (hosted free on GIthub Pages)**
 
 ## Educational Philosophy
 
