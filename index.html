@@ -126,11 +126,83 @@
         .example-decimal { font-weight: bold; color: #d32f2f; border: none; }
         .example-line { grid-column: 1 / span 6; height: 2px; background: #999; margin: 3px 0; }
         .step-annotation { font-size: 13px; color: #495057; margin: 5px 0; font-style: italic; }
+        
+        /* Coin mastery progress */
+        .mastery-container {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .coin-progress {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            background: conic-gradient(
+                #FFD700 0deg,
+                #FFD700 var(--fill-degrees),
+                #f0f0f0 var(--fill-degrees),
+                #f0f0f0 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        .coin-progress.full {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            animation: coin-shine 1s ease-out;
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.8);
+        }
+        @keyframes coin-shine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        .coin-label {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+        }
+        
+        /* Coin count display */
+        .coin-count-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .coin-count-display span {
+            color: #FFD700;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
 
     <div class="problem-container">
+        <div class="mastery-container">
+            <div>
+                <div class="coin-progress" id="coin-progress" style="--fill-degrees: 0deg; opacity: .3;">
+                    <span id="coin-icon">🏆</span>
+                </div>
+                <div class="coin-label" id="streak-label">0/3</div>
+            </div>
+        </div>
+        
         <div id="instructions" class="instructions">
             <div id="step1">Step 1: <input type="checkbox" id="step1-checkbox" disabled aria-hidden="true"> Use arrows to line up the decimal points.</div>
             <div id="step2" style="opacity:0.5; margin-top:6px;">Step 2: <input type="checkbox" id="step2-checkbox" disabled aria-hidden="true"> Enter the answer (right to left).</div>
@@ -183,8 +255,10 @@
         <button id="next-btn" class="hidden" onclick="generateProblemWithAnimation()">Next Problem</button>
     </div>
 
-    <div class="example-section">
-        <button class="example-toggle" onclick="toggleExamples()">? Show Examples: How to Use Borrow/Carry Boxes</button>
+    <div class="example-section">        <div class="coin-count-display">
+            🏆 Total Coins Earned: <span id="total-coins-display">0</span>
+        </div>
+                <button class="example-toggle" onclick="toggleExamples()">? Show Examples: How to Use Borrow/Carry Boxes</button>
         <div id="example-content" class="example-content">
             
             <div class="example-problem">
@@ -354,6 +428,10 @@
         let shiftIndex = 2; // Start unaligned
         const offsetPixels = 42; // Width of cell + gap
         let currentProblem = { n1: "", n2: "", isAdd: true };
+        
+        // Mastery tracking
+        let streak = 0;
+        let totalCoins = 0;
 
         // Expected annotations (optional, for validation feedback only)
         let expectedNotes = { note_1: "", note_2: "", note_3: "", note_4: "" };
@@ -554,6 +632,29 @@
             }
         }
 
+        function updateCoinProgress() {
+            const coinProgress = document.getElementById('coin-progress');
+            const streakLabel = document.getElementById('streak-label');
+            const coinIcon = document.getElementById('coin-icon');
+            
+            // Calculate fill degrees (120 degrees per problem, 3 problems = 360)
+            const fillDegrees = (streak % 3) * 120;
+            coinProgress.style.setProperty('--fill-degrees', `${fillDegrees}deg`);
+            
+            // Update label
+            streakLabel.innerText = `${streak % 3}/3`;
+            
+            // Full coin animation
+            if (streak > 0 && streak % 3 === 0) {
+                coinProgress.classList.add('full');
+                coinIcon.innerText = '✨';
+                setTimeout(() => {
+                    coinProgress.classList.remove('full');
+                    coinIcon.innerText = '🪙';
+                }, 1500);
+            }
+        }
+
         function createConfetti() {
             const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
             const confettiCount = 50;
@@ -577,7 +678,19 @@
             const inputs = document.querySelectorAll('.digit-input');
             const allCorrect = Array.from(inputs).every((input, idx) => input.value === solution[idx]);
             if (allCorrect) {
-                document.getElementById('status-msg').innerText = "Correct! Balance updated. 🌟";
+                // Increment streak
+                streak++;
+                updateCoinProgress();
+                
+                // Check if earned a full coin
+                if (streak % 3 === 0) {
+                    totalCoins++;
+                    document.getElementById('total-coins-display').innerText = totalCoins;
+                    document.getElementById('status-msg').innerText = `🎉 Full coin earned! Total: ${totalCoins} coin${totalCoins > 1 ? 's' : ''}`;
+                } else {
+                    document.getElementById('status-msg').innerText = `Correct! ${3 - (streak % 3)} more to earn a coin! 🌟`;
+                }
+                
                 document.getElementById('next-btn').classList.remove('hidden');
                 document.getElementById('step2-checkbox').checked = true;
                 // Disable all inputs after correct answer

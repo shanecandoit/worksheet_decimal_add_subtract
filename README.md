@@ -19,6 +19,13 @@ An interactive math practice tool for learning decimal addition and subtraction 
 - **Confetti Animation** - Celebrate correct answers with colorful confetti 🎉
 - **Slide Transitions** - Problems slide up/down when you click "Next Problem"
 
+### 🏆 **Mastery System**
+
+- **Coin Progress** - Visual coin indicator fills by thirds with each correct answer
+- **Streak Tracking** - Get 3 problems correct in a row to earn a complete coin
+- **Motivation** - Total coins earned displayed above examples section
+- **No Penalties** - Wrong answers don't reset your streak, encouraging experimentation
+
 ### 🌳 **Cozy Design**
 
 - Relaxing blue sky and green hills background
