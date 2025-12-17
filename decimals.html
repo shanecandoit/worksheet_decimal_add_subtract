@@ -41,7 +41,7 @@
 
         /* Example section */
         .example-section { margin-top: 30px; padding: 20px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; }
-        .example-toggle { background: #6c757d; margin-bottom: 15px; font-size: 14px; }
+        .example-toggle { background: #ddd; margin-bottom: 15px; font-size: 14px; }
         .example-content { display: none; }
         .example-content.show { display: block; }
         .example-problem { font-family: 'Courier New', monospace; margin: 15px 0; padding: 15px; background: white; border-left: 3px solid #6c757d; opacity: 0.75; }
@@ -110,7 +110,7 @@
     </div>
 
     <div class="example-section">
-        <button class="example-toggle" onclick="toggleExamples()">📖 Show Examples: How to Use Borrow/Carry Boxes</button>
+        <button class="example-toggle" onclick="toggleExamples()">? Show Examples: How to Use Borrow/Carry Boxes</button>
         <div id="example-content" class="example-content">
             
             <div class="example-problem">
@@ -485,7 +485,7 @@
             const button = document.querySelector('.example-toggle');
             if (content.classList.contains('show')) {
                 content.classList.remove('show');
-                button.innerText = '📖 Show Examples: How to Use Borrow/Carry Boxes';
+                button.innerText = '? Show Examples: How to Use Borrow/Carry Boxes';
             } else {
                 content.classList.add('show');
                 button.innerText = '📖 Hide Examples';
