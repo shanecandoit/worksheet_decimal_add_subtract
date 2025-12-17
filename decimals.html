@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f0f2f5; }
+        .problem-container { border: 3px solid #333; padding: 30px; border-radius: 12px; background: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; }
+        .instructions { font-size: 14px; margin-bottom: 20px; padding: 10px; background: #e7f3ff; border-left: 4px solid #2196f3; }
+        
+        /* Grid Layout */
+        .math-table { display: grid; grid-template-columns: repeat(6, 40px); gap: 2px; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid #ddd; }
+        .no-border { border: none; }
+        .decimal-cell { font-weight: bold; color: #d32f2f; border: none; width: 10px; }
+        
+        /* Shifting logic */
+        #row2-wrapper { grid-column: 1 / span 6; display: grid; grid-template-columns: repeat(6, 40px); gap: 2px; transition: transform 0.2s ease; }
+        .controls { display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px; }
+        
+        .line { grid-column: 1 / span 6; height: 3px; background: #333; margin: 5px 0; }
+        
+        /* Inputs */
+        input.digit-input { width: 30px; height: 30px; font-size: 20px; text-align: center; border: 2px solid #ccc; border-radius: 4px; outline: none; }
+        input.correct { border-color: #4caf50 !important; background-color: #e8f5e9; }
+        input.incorrect { border-color: #f44336 !important; background-color: #ffebee; }
+        input:disabled { background-color: #eee; cursor: not-allowed; border-color: #ddd; }
+
+        button { padding: 8px 16px; cursor: pointer; background: #2196f3; color: white; border: none; border-radius: 4px; font-weight: bold; }
+        button:disabled { background: #ccc; }
+        .hidden { display: none; }
+        #status-msg { margin-top: 15px; font-weight: bold; text-align: center; min-height: 24px; }
+    </style>
+</head>
+<body>
+
+    <div class="problem-container">
+        <div id="instructions" class="instructions">Step 1: Use arrows to line up the decimal points.</div>
+        
+        <div class="controls">
+            <button id="shift-left">◀ Move Row</button>
+            <button id="shift-right">Move Row ▶</button>
+        </div>
+
+        <div class="math-table">
+            <div class="cell no-border"></div>
+            <div class="cell" id="r1_1"></div>
+            <div class="cell" id="r1_2"></div>
+            <div class="decimal-cell">.</div>
+            <div class="cell" id="r1_3"></div>
+            <div class="cell" id="r1_4"></div>
+
+            <div id="row2-wrapper">
+                <div class="cell no-border" id="op-display">+</div>
+                <div class="cell" id="r2_1"></div>
+                <div class="cell" id="r2_2"></div>
+                <div class="decimal-cell">.</div>
+                <div class="cell" id="r2_3"></div>
+                <div class="cell" id="r2_4"></div>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="cell no-border"></div>
+            <div class="cell no-border"><input type="text" class="digit-input" id="ans_1" maxlength="1" disabled></div>
+            <div class="cell no-border"><input type="text" class="digit-input" id="ans_2" maxlength="1" disabled></div>
+            <div class="decimal-cell">.</div>
+            <div class="cell no-border"><input type="text" class="digit-input" id="ans_3" maxlength="1" disabled></div>
+            <div class="cell no-border"><input type="text" class="digit-input" id="ans_4" maxlength="1" disabled></div>
+        </div>
+
+        <div id="status-msg"></div>
+        <button id="next-btn" class="hidden" onclick="generateProblem()">Next Problem</button>
+    </div>
+
+    <script>
+        let solution = "";
+        let shiftIndex = 2; // Start unaligned
+        const offsetPixels = 42; // Width of cell + gap
+
+        function generateProblem() {
+            shiftIndex = Math.random() > 0.5 ? 1 : -1; 
+            updateShiftUI();
+            
+            const isAdd = Math.random() > 0.5;
+            let n1 = (Math.random() * 80 + 10).toFixed(2);
+            let n2 = (Math.random() * 10 + 5).toFixed(2);
+            
+            if (!isAdd && parseFloat(n1) < parseFloat(n2)) [n1, n2] = [n2, n1];
+            
+            let res = isAdd ? (parseFloat(n1) + parseFloat(n2)) : (parseFloat(n1) - parseFloat(n2));
+            solution = res.toFixed(2).padStart(5, '0').replace('.', ''); // e.g. "45.20" -> "4520"
+
+            document.getElementById('op-display').innerText = isAdd ? '+' : '-';
+            fillRow('r1', n1);
+            fillRow('r2', n2);
+
+            // Reset inputs
+            document.querySelectorAll('.digit-input').forEach(input => {
+                input.value = '';
+                input.className = 'digit-input';
+                input.disabled = true;
+            });
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('status-msg').innerText = "";
+            document.getElementById('instructions').innerText = "Step 1: Use arrows to line up the decimal points.";
+        }
+
+        function fillRow(prefix, num) {
+            const parts = num.split('.');
+            const whole = parts[0].padStart(2, '0');
+            const dec = parts[1].padEnd(2, '0');
+            document.getElementById(`${prefix}_1`).innerText = whole[0];
+            document.getElementById(`${prefix}_2`).innerText = whole[1];
+            document.getElementById(`${prefix}_3`).innerText = dec[0];
+            document.getElementById(`${prefix}_4`).innerText = dec[1];
+        }
+
+        function updateShiftUI() {
+            const wrapper = document.getElementById('row2-wrapper');
+            wrapper.style.transform = `translateX(${shiftIndex * offsetPixels}px)`;
+            
+            if (shiftIndex === 0) {
+                document.getElementById('instructions').innerText = "Step 2: Decimals aligned! Enter the answer.";
+                document.querySelectorAll('.digit-input').forEach(i => i.disabled = false);
+            } else {
+                document.querySelectorAll('.digit-input').forEach(i => i.disabled = true);
+            }
+        }
+
+        document.getElementById('shift-left').onclick = () => { shiftIndex--; updateShiftUI(); };
+        document.getElementById('shift-right').onclick = () => { shiftIndex++; updateShiftUI(); };
+
+        document.querySelectorAll('.digit-input').forEach((input, idx) => {
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                const correctDigit = solution[idx];
+
+                if (val === "") {
+                    input.className = 'digit-input';
+                } else if (val === correctDigit) {
+                    input.className = 'digit-input correct';
+                    checkTotalWin();
+                } else {
+                    input.className = 'digit-input incorrect';
+                }
+            });
+        });
+
+        function checkTotalWin() {
+            const inputs = document.querySelectorAll('.digit-input');
+            const allCorrect = Array.from(inputs).every((input, idx) => input.value === solution[idx]);
+            if (allCorrect) {
+                document.getElementById('status-msg').innerText = "Excellent! 🌟";
+                document.getElementById('next-btn').classList.remove('hidden');
+            }
+        }
+
+        generateProblem();
+    </script>
+</body>
+</html>
