@@ -79,8 +79,9 @@
         .note-input.incorrect { border-color: #f44336 !important; background-color: #ffebee; }
         .borrowed { text-decoration: line-through; color: #999 !important; }
 
-        button { padding: 8px 16px; cursor: pointer; background: #2196f3; color: white; border: none; border-radius: 4px; font-weight: bold; }
+        button { padding: 8px 16px; cursor: pointer; background: #2196f3; color: white; border: none; border-radius: 4px; font-weight: bold; transition: background 0.3s ease; }
         button:disabled { background: #ccc; }
+        button.completed { background: #ccc; color: #f0f0f0; }
         .hidden { display: none; }
         #status-msg { margin-top: 15px; font-weight: bold; text-align: center; min-height: 24px; }
 
@@ -457,10 +458,17 @@
             const wrapper = document.getElementById('row2-wrapper');
             wrapper.style.transform = `translateX(${shiftIndex * offsetPixels}px)`;
             
+            const leftBtn = document.getElementById('shift-left');
+            const rightBtn = document.getElementById('shift-right');
+            
             if (shiftIndex === 0) {
                 // Mark Step 1 as complete and enable Step 2
                 document.getElementById('step1-checkbox').checked = true;
                 document.getElementById('step2').style.opacity = 1;
+                
+                // Grey out shift buttons - their job is done
+                leftBtn.classList.add('completed');
+                rightBtn.classList.add('completed');
                 
                 // Enable both note inputs (optional) and digit inputs simultaneously
                 document.querySelectorAll('.note-input, .digit-input').forEach(i => {
@@ -475,6 +483,11 @@
                 // Uncheck Step 1 and dim Step 2 while aligning
                 document.getElementById('step1-checkbox').checked = false;
                 document.getElementById('step2').style.opacity = 0.5;
+                
+                // Remove completed state from shift buttons
+                leftBtn.classList.remove('completed');
+                rightBtn.classList.remove('completed');
+                
                 document.querySelectorAll('.note-input').forEach(i => { i.disabled = true; i.className = 'note-input'; });
                 document.querySelectorAll('.digit-input').forEach(i => i.disabled = true);
             }
