@@ -35,7 +35,10 @@
 <body>
 
     <div class="problem-container">
-        <div id="instructions" class="instructions">Step 1: Use arrows to line up the decimal points.</div>
+        <div id="instructions" class="instructions">
+            <div id="step1">Step 1: <span id="step1-checkbox" aria-hidden="true">⬜</span> Use arrows to line up the decimal points.</div>
+            <div id="step2" style="opacity:0.5; margin-top:6px;">Step 2: Enter the answer.</div>
+        </div>
         
         <div class="controls">
             <button id="shift-left">◀ Move Row</button>
@@ -103,7 +106,9 @@
             });
             document.getElementById('next-btn').classList.add('hidden');
             document.getElementById('status-msg').innerText = "";
-            document.getElementById('instructions').innerText = "Step 1: Use arrows to line up the decimal points.";
+            // Reset step indicators
+            document.getElementById('step1-checkbox').innerText = '⬜';
+            document.getElementById('step2').style.opacity = 0.5;
         }
 
         function fillRow(prefix, num) {
@@ -121,9 +126,14 @@
             wrapper.style.transform = `translateX(${shiftIndex * offsetPixels}px)`;
             
             if (shiftIndex === 0) {
-                document.getElementById('instructions').innerText = "Step 2: Decimals aligned! Enter the answer.";
+                // Mark Step 1 as complete and reveal Step 2
+                document.getElementById('step1-checkbox').innerText = '✅';
+                document.getElementById('step2').style.opacity = 1;
                 document.querySelectorAll('.digit-input').forEach(i => i.disabled = false);
             } else {
+                // Uncheck Step 1 and dim Step 2 while aligning
+                document.getElementById('step1-checkbox').innerText = '⬜';
+                document.getElementById('step2').style.opacity = 0.5;
                 document.querySelectorAll('.digit-input').forEach(i => i.disabled = true);
             }
         }
