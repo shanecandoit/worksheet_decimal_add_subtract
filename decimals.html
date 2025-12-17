@@ -36,13 +36,13 @@
 
     <div class="problem-container">
         <div id="instructions" class="instructions">
-            <div id="step1">Step 1: <span id="step1-checkbox" aria-hidden="true">⬜</span> Use arrows to line up the decimal points.</div>
-            <div id="step2" style="opacity:0.5; margin-top:6px;">Step 2: Enter the answer.</div>
+            <div id="step1">Step 1: <input type="checkbox" id="step1-checkbox" disabled aria-hidden="true"> Use arrows to line up the decimal points.</div>
+            <div id="step2" style="opacity:0.5; margin-top:6px;">Step 2: <input type="checkbox" id="step2-checkbox" disabled aria-hidden="true"> Enter the answer.</div>
         </div>
         
         <div class="controls">
-            <button id="shift-left">◀ Move Row</button>
-            <button id="shift-right">Move Row ▶</button>
+            <button id="shift-left">◀ Move 2nd Row</button>
+            <button id="shift-right">Move 2nd Row ▶</button>
         </div>
 
         <div class="math-table">
@@ -73,6 +73,7 @@
         </div>
 
         <div id="status-msg"></div>
+        <br>
         <button id="next-btn" class="hidden" onclick="generateProblem()">Next Problem</button>
     </div>
 
@@ -107,7 +108,10 @@
             document.getElementById('next-btn').classList.add('hidden');
             document.getElementById('status-msg').innerText = "";
             // Reset step indicators
-            document.getElementById('step1-checkbox').innerText = '⬜';
+            const step1cb = document.getElementById('step1-checkbox');
+            step1cb.checked = false;
+            const step2cb = document.getElementById('step2-checkbox');
+            step2cb.checked = false;
             document.getElementById('step2').style.opacity = 0.5;
         }
 
@@ -127,12 +131,12 @@
             
             if (shiftIndex === 0) {
                 // Mark Step 1 as complete and reveal Step 2
-                document.getElementById('step1-checkbox').innerText = '✅';
+                document.getElementById('step1-checkbox').checked = true;
                 document.getElementById('step2').style.opacity = 1;
                 document.querySelectorAll('.digit-input').forEach(i => i.disabled = false);
             } else {
                 // Uncheck Step 1 and dim Step 2 while aligning
-                document.getElementById('step1-checkbox').innerText = '⬜';
+                document.getElementById('step1-checkbox').checked = false;
                 document.getElementById('step2').style.opacity = 0.5;
                 document.querySelectorAll('.digit-input').forEach(i => i.disabled = true);
             }
@@ -163,6 +167,7 @@
             if (allCorrect) {
                 document.getElementById('status-msg').innerText = "Excellent! 🌟";
                 document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('step2-checkbox').checked = true;
             }
         }
 
