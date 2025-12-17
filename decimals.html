@@ -37,6 +37,20 @@
         button:disabled { background: #ccc; }
         .hidden { display: none; }
         #status-msg { margin-top: 15px; font-weight: bold; text-align: center; min-height: 24px; }
+
+        /* Example section */
+        .example-section { margin-top: 30px; padding: 20px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; }
+        .example-toggle { background: #6c757d; margin-bottom: 15px; font-size: 14px; }
+        .example-content { display: none; }
+        .example-content.show { display: block; }
+        .example-problem { font-family: 'Courier New', monospace; margin: 15px 0; padding: 15px; background: white; border-left: 3px solid #6c757d; opacity: 0.75; }
+        .example-problem h4 { margin: 0 0 10px 0; color: #495057; font-size: 14px; }
+        .example-grid { display: grid; grid-template-columns: 40px 40px 40px 10px 40px 40px; gap: 2px; font-size: 18px; margin: 8px 0; }
+        .example-cell { width: 40px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid #e0e0e0; background: #fafafa; }
+        .example-note { font-size: 12px; color: #666; border: 1px dashed #999; }
+        .example-decimal { font-weight: bold; color: #d32f2f; border: none; }
+        .example-line { grid-column: 1 / span 6; height: 2px; background: #999; margin: 3px 0; }
+        .step-annotation { font-size: 13px; color: #495057; margin: 5px 0; font-style: italic; }
     </style>
 </head>
 <body>
@@ -92,6 +106,172 @@
         <div id="status-msg"></div>
         <br>
         <button id="next-btn" class="hidden" onclick="generateProblem()">Next Problem</button>
+    </div>
+
+    <div class="example-section">
+        <button class="example-toggle" onclick="toggleExamples()">📖 Show Examples: How to Use Borrow/Carry Boxes</button>
+        <div id="example-content" class="example-content">
+            
+            <div class="example-problem">
+                <h4>Example 1: Subtraction with Borrowing (60.54 - 08.84)</h4>
+                <p class="step-annotation">Step 1: Start from the right (hundredths place): 4 - 4 = 0 ✓</p>
+                <div class="example-grid">
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-note"></div>
+                    <div class="example-note"></div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-note"></div>
+                    <div class="example-note"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell">6</div>
+                    <div class="example-cell">0</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell">5</div>
+                    <div class="example-cell">4</div>
+                    
+                    <div class="example-cell" style="border:none;">-</div>
+                    <div class="example-cell">0</div>
+                    <div class="example-cell">8</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell">8</div>
+                    <div class="example-cell">4</div>
+                    
+                    <div class="example-line"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="background:#e8f5e9;">0</div>
+                </div>
+                
+                <p class="step-annotation">Step 2: Tenths place: 5 - 8? Can't do it! Need to borrow from the 0.</p>
+                <p class="step-annotation">→ Borrow from ones place (0 becomes -1, but 0 can't give! So borrow from tens: 6→5)</p>
+                <p class="step-annotation">→ The 0 in ones becomes 10, borrow 1 from it → 9 remains in ones place</p>
+                <p class="step-annotation">→ The 5 in tenths becomes 15. Write <strong>15</strong> above the 5, and <strong>9</strong> above the 0.</p>
+                
+                <div class="example-grid">
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-note"></div>
+                    <div class="example-note" style="background:#fff3cd;">9</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-note" style="background:#fff3cd;">15</div>
+                    <div class="example-note"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell">6</div>
+                    <div class="example-cell" style="text-decoration:line-through; color:#999;">0</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell" style="text-decoration:line-through; color:#999;">5</div>
+                    <div class="example-cell">4</div>
+                    
+                    <div class="example-cell" style="border:none;">-</div>
+                    <div class="example-cell">0</div>
+                    <div class="example-cell">8</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell">8</div>
+                    <div class="example-cell">4</div>
+                    
+                    <div class="example-line"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell" style="background:#e8f5e9;">7</div>
+                    <div class="example-cell" style="background:#e8f5e9;">0</div>
+                </div>
+                <p class="step-annotation">Now: 15 - 8 = 7 ✓</p>
+                
+                <p class="step-annotation">Step 3: Ones place: 9 - 8 = 1 ✓</p>
+                <p class="step-annotation">Step 4: Tens place: 6 - 0 = 6. But we borrowed 1, so 5 - 0 = 5 ✓</p>
+                <p class="step-annotation"><strong>Final answer: 51.70</strong></p>
+            </div>
+
+            <div class="example-problem">
+                <h4>Example 2: Addition with Carry (45.67 + 38.58)</h4>
+                <p class="step-annotation">Step 1: Hundredths: 7 + 8 = 15. Write 5, carry <strong>1</strong> above next column.</p>
+                
+                <div class="example-grid">
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-note"></div>
+                    <div class="example-note"></div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-note" style="background:#fff3cd;">1</div>
+                    <div class="example-note"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell">4</div>
+                    <div class="example-cell">5</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell">6</div>
+                    <div class="example-cell">7</div>
+                    
+                    <div class="example-cell" style="border:none;">+</div>
+                    <div class="example-cell">3</div>
+                    <div class="example-cell">8</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell">5</div>
+                    <div class="example-cell">8</div>
+                    
+                    <div class="example-line"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="background:#e8f5e9;">5</div>
+                </div>
+                
+                <p class="step-annotation">Step 2: Tenths: 6 + 5 + 1 (carry) = 12. Write 2, carry <strong>1</strong>.</p>
+                
+                <div class="example-grid">
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-note"></div>
+                    <div class="example-note" style="background:#fff3cd;">1</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-note" style="background:#d4edda;">1</div>
+                    <div class="example-note"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell">4</div>
+                    <div class="example-cell">5</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell">6</div>
+                    <div class="example-cell">7</div>
+                    
+                    <div class="example-cell" style="border:none;">+</div>
+                    <div class="example-cell">3</div>
+                    <div class="example-cell">8</div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell">5</div>
+                    <div class="example-cell">8</div>
+                    
+                    <div class="example-line"></div>
+                    
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-cell" style="border:none;"></div>
+                    <div class="example-decimal">.</div>
+                    <div class="example-cell" style="background:#e8f5e9;">2</div>
+                    <div class="example-cell" style="background:#e8f5e9;">5</div>
+                </div>
+                
+                <p class="step-annotation">Step 3: Ones: 5 + 8 + 1 (carry) = 14. Write 4, carry <strong>1</strong>.</p>
+                <p class="step-annotation">Step 4: Tens: 4 + 3 + 1 (carry) = 8.</p>
+                <p class="step-annotation"><strong>Final answer: 84.25</strong></p>
+            </div>
+
+            <div class="example-problem">
+                <h4>💡 Quick Rules:</h4>
+                <p class="step-annotation"><strong>Borrowing:</strong> When top digit < bottom digit, borrow from the left. Write the new value (original + 10) in the scratch box above. Don't forget to reduce the left digit by 1 (and write that too if needed).</p>
+                <p class="step-annotation"><strong>Carrying:</strong> When a column sum ≥ 10, write <strong>1</strong> in the scratch box above the next column to the left.</p>
+                <p class="step-annotation"><strong>Remember:</strong> These boxes are optional! Use them if they help you track your work.</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -277,6 +457,18 @@
                 document.getElementById('step2-checkbox').checked = true;
                 // Disable all inputs after correct answer
                 document.querySelectorAll('.digit-input, .note-input').forEach(i => i.disabled = true);
+            }
+        }
+
+        function toggleExamples() {
+            const content = document.getElementById('example-content');
+            const button = document.querySelector('.example-toggle');
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                button.innerText = '📖 Show Examples: How to Use Borrow/Carry Boxes';
+            } else {
+                content.classList.add('show');
+                button.innerText = '📖 Hide Examples';
             }
         }
 
